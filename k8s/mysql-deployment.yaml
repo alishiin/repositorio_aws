@@ -12,6 +12,9 @@ spec:
     metadata:
       labels:
         app: tienda-db
+
+      annotations:
+        instrumentation.opentelemetry.io/inject-sdk: "false"
     spec:
       containers:
         - name: mysql
