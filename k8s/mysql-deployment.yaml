@@ -27,6 +27,13 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/mysql
+            # 1. Montamos el script en la carpeta de inicialización de MySQL
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d
       volumes:
         - name: data
           emptyDir: {}
+        # 2. Definimos el volumen que lee desde el ConfigMap de arriba
+        - name: init-script
+          configMap:
+            name: tienda-db-init
