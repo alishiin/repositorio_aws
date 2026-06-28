@@ -40,9 +40,12 @@ jobs:
 
     - name: Desplegar en EKS
       run: |
-        # Aplica los manifiestos que están en tu carpeta k8s/
+        # Reemplaza la palabra REGISTRY_PROXY por la URL real de tu ECR en todos los archivos yaml
+        sed -i "s|REGISTRY_PROXY|${{ steps.login-ecr.outputs.registry }}|g" k8s/*.yaml
+        
+        # Aplica los manifiestos corregidos
         kubectl apply -f k8s/
         
-        # Fuerza a Kubernetes a descargar las nuevas imágenes ('latest') que acabamos de subir
+        # Fuerza el reinicio para descargar las nuevas versiones
         kubectl rollout restart deployment/tienda-backend -n tienda
         kubectl rollout restart deployment/tienda-frontend -n tienda
