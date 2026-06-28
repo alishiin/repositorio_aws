@@ -1,0 +1,48 @@
+name: Deploy to Amazon EKS
+
+on:
+  push:
+    branches: [ "main" ] # El pipeline se ejecutará cada vez que subas cambios a la rama main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout del codigo
+      uses: actions/checkout@v4
+
+    - name: Configurar credenciales de AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }} # Obligatorio para cuentas AWS Academy / Vocareum
+        aws-region: us-east-1
+
+    - name: Iniciar sesion en Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Compilar y subir imagenes a ECR
+      run: |
+        # 1. Compilar y subir Backend
+        docker build -t ${{ steps.login-ecr.outputs.registry }}/tienda-backend:latest ./backend
+        docker push ${{ steps.login-ecr.outputs.registry }}/tienda-backend:latest
+        
+        # 2. Compilar y subir Frontend
+        docker build -t ${{ steps.login-ecr.outputs.registry }}/tienda-frontend:latest ./frontend
+        docker push ${{ steps.login-ecr.outputs.registry }}/tienda-frontend:latest
+
+    - name: Actualizar configuracion de Kubeconfig
+      run: |
+        aws eks update-kubeconfig --name devopseks --region us-east-1
+
+    - name: Desplegar en EKS
+      run: |
+        # Aplica los manifiestos que están en tu carpeta k8s/
+        kubectl apply -f k8s/
+        
+        # Fuerza a Kubernetes a descargar las nuevas imágenes ('latest') que acabamos de subir
+        kubectl rollout restart deployment/tienda-backend -n tienda
+        kubectl rollout restart deployment/tienda-frontend -n tienda
