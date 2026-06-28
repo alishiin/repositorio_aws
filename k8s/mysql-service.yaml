@@ -5,7 +5,7 @@ metadata:
   namespace: tienda
 spec:
   selector:
-    app: tienda-db
+    app: tienda-db-v2
   ports:
     - protocol: TCP
       port: 3306
