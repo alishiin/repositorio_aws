@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3001; // El puerto del backend por defecto[cite: 1]
 
 const {
-  DB_HOST = "tienda-db", // CORRECCIÓN: Se agregaron comillas para evitar errores de sintaxis en JavaScript. Resuelve internamente en EKS[cite: 1]
+  DB_HOST = tienda-db, // CORRECCIÓN: Se agregaron comillas para evitar errores de sintaxis en JavaScript. Resuelve internamente en EKS[cite: 1]
   DB_USER = "root",
   DB_PASSWORD = "admin123",
   DB_NAME = "tienda_perritos",
