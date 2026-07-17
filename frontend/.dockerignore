@@ -1,0 +1,14 @@
+# Ignorar dependencias de Node locales (las más pesadas)
+node_modules
+npm-debug.log
+
+# Ignorar archivos de Git y configuración del pipeline
+.git
+.github
+
+# Ignorar archivos propios de Docker que no se necesitan en el contenedor
+Dockerfile
+.dockerignore
+
+# Ignorar archivos de configuración local
+.env
