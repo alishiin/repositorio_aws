@@ -16,8 +16,13 @@ const {
 
 app.use(cors());
 app.use(express.json());
-app.use(morgan("dev")); // NUEVO: Middleware para imprimir "GET /api/productos 200" en la consola
-
+app.use(
+  morgan("dev", {
+    stream: {
+      write: (message) => console.log(message.trim()),
+    },
+  })
+);
 let pool;
 
 // Inicializar pool de conexiones
