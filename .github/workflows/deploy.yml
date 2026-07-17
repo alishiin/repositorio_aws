@@ -24,15 +24,29 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Compilar y subir imagenes a ECR
-      run: |
-        # 1. Compilar y subir Backend
-        docker build -t ${{ steps.login-ecr.outputs.registry }}/tienda-backend:latest ./backend
-        docker push ${{ steps.login-ecr.outputs.registry }}/tienda-backend:latest
-        
-        # 2. Compilar y subir Frontend
-        docker build -t ${{ steps.login-ecr.outputs.registry }}/tienda-frontend:latest ./frontend
-        docker push ${{ steps.login-ecr.outputs.registry }}/tienda-frontend:latest
+    # 1. NUEVO: Configura el constructor Docker Buildx necesario para gestionar la caché avanzada
+    - name: Configurar Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    # 2. NUEVO: Compila y sube el Backend utilizando el almacenamiento de caché de GitHub (gha)
+    - name: Compilar y subir Backend a ECR
+      uses: docker/build-push-action@v6
+      with:
+        context: ./backend
+        push: true
+        tags: ${{ steps.login-ecr.outputs.registry }}/tienda-backend:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    # 3. NUEVO: Compila y sube el Frontend utilizando el almacenamiento de caché de GitHub (gha)
+    - name: Compilar y subir Frontend a ECR
+      uses: docker/build-push-action@v6
+      with:
+        context: ./frontend
+        push: true
+        tags: ${{ steps.login-ecr.outputs.registry }}/tienda-frontend:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
     - name: Actualizar configuracion de Kubeconfig
       run: |
@@ -49,3 +63,8 @@ jobs:
         # Fuerza el reinicio para descargar las nuevas versiones
         kubectl rollout restart deployment/tienda-backend -n tienda
         kubectl rollout restart deployment/tienda-frontend -n tienda
+
+        # NUEVO: Esperar y validar activamente que los nuevos pods estén saludables
+        echo "Validando la estabilidad del despliegue en Kubernetes..."
+        kubectl rollout status deployment/tienda-backend -n tienda --timeout=3m
+        kubectl rollout status deployment/tienda-frontend -n tienda --timeout=3m
