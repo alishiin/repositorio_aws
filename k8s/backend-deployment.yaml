@@ -12,6 +12,10 @@ spec:
     metadata:
       labels:
         app: tienda-backend
+        annotations:
+        # Esto le dice al operador de OpenTelemetry que NO inyecte agentes en este pod
+        instrumentation.opentelemetry.io/inject-nodejs: "false"
+        sidecar.opentelemetry.io/inject: "false"
     spec:
       containers:
         - name: backend
