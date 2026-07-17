@@ -1,13 +1,13 @@
 const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2/promise");
-const morgan = require("morgan"); // NUEVO: Importación para el registro de tráfico HTTP
+const morgan = require("morgan"); // NUEVO: Importación para registrar peticiones
 
 const app = express();
-const PORT = process.env.PORT || 3001; // El puerto del backend por defecto[cite: 1]
+const PORT = process.env.PORT || 3001;
 
 const {
-  DB_HOST = tienda-db, // CORRECCIÓN: Se agregaron comillas para evitar errores de sintaxis en JavaScript. Resuelve internamente en EKS[cite: 1]
+  DB_HOST = "tienda-db", // Dejar con comillas para evitar errores de sintaxis en Node.js
   DB_USER = "root",
   DB_PASSWORD = "admin123",
   DB_NAME = "tienda_perritos",
@@ -16,7 +16,7 @@ const {
 
 app.use(cors());
 app.use(express.json());
-app.use(morgan("dev")); // NUEVO: Middleware para imprimir logs de peticiones en la consola (e.g. "GET /api/productos 200")
+app.use(morgan("dev")); // NUEVO: Middleware para imprimir "GET /api/productos 200" en la consola
 
 let pool;
 
@@ -33,7 +33,7 @@ async function initDb() {
       connectionLimit: 10,
       queueLimit: 0,
     });
-    console.log("Pool de conexiones MySQL inicializado."); // Log de arranque del pool de conexiones[cite: 1]
+    console.log("Pool de conexiones MySQL inicializado.");
   } catch (err) {
     console.error("Error al inicializar pool de MySQL:", err);
   }
@@ -140,6 +140,6 @@ app.get("/api/health", (req, res) => {
 
 // Iniciar servidor
 app.listen(PORT, async () => {
-  console.log(`Servidor backend escuchando en puerto ${PORT}`); // Confirmación de puerto del backend[cite: 1]
+  console.log(`Servidor backend escuchando en puerto ${PORT}`);
   await initDb();
 });
