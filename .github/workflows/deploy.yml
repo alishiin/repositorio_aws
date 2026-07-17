@@ -2,7 +2,7 @@ name: Deploy to Amazon EKS
 
 on:
   push:
-    branches: [ "main" ] # El pipeline se ejecutará cada vez que subas cambios a la rama main
+    branches: [ "main" ] # El pipeline se ejecutará cada vez que subas cambios a la rama mainn
 
 jobs:
   deploy:
